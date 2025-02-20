@@ -21,7 +21,6 @@ tar -xvzf blackbox_exporter-0.19.0.linux-amd64.tar.gz
 mv blackbox_exporter-0.19.0.linux-amd64/blackbox_exporter /usr/local/bin/
 mkdir /etc/blackbox_exporter/
 mv blackbox_exporter-0.19.0.linux-amd64/blackbox.yml /etc/blackbox_exporter/
-
 ```
 ### 2) Creazione utente blackbox_exporter
 ```
