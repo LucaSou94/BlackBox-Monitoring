@@ -141,12 +141,14 @@ with open(prometheus_yml_path, 'w') as yml_file:
 print(f'Le URL sono state aggiunte correttamente a {prometheus_yml_path}')
 ```
 
-## 4. Eseguire un Container Nginx con Podman
+## 4. Eseguire dei Container con Podman
 
 ### 1) Avvio container nginx che ascolta sulla porta 8080
+
 ```
 podman run -d --name nginx-container -p 8080:80 nginx
-
+podman run -d --name postgres-container -p 5432:5432 postgres
+podman run -d --name mysql-container -p 3306:3306 mysql
 ```
 
 ## 5. Installazione e Configurazione di Prometheus
