@@ -70,15 +70,15 @@ vim /opt/blackbox-monitoring/data/urls.json
 {
   "urls": [
     {
-      "url": "http://192.168.3.99:8080",
+      "url": "http://ip-server:8080",
       "method": "GET"
     },
     {
-      "url": "http://192.168.3.99:3306",
+      "url": "http://ip-server:3306",
       "method": "GET"
     },
     {
-      "url": "http://192.168.3.99:5432",
+      "url": "http://ip-server:5432",
       "method": "GET"
     }
   ]
@@ -120,7 +120,7 @@ if not blackbox_config:
         'relabel_configs': [
             {'source_labels': ['__address__'], 'target_label': '__param_target'},
             {'source_labels': ['__param_target'], 'target_label': 'instance'},
-            {'target_label': '__address__', 'replacement': '192.168.3.99:9115'}
+            {'target_label': '__address__', 'replacement': 'ip-server:9115'}
         ]
     }
     scrape_configs.append(blackbox_config)
@@ -266,9 +266,9 @@ scrape_configs:
     - http_2xx
   static_configs:
   - targets:
-    - http://192.168.3.99:8080
-    - http://192.168.3.99:5432
-    - http://192.168.3.99:3306
+    - http://ip-server:8080
+    - http://ip-server:5432
+    - http://ip-server:3306
   relabel_configs:
   - source_labels:
     - __address__
@@ -277,7 +277,7 @@ scrape_configs:
     - __param_target
     target_label: instance
   - target_label: __address__
-    replacement: 192.168.3.99:9115
+    replacement: ip-server:9115
 ```
 ### 3) Riavviamo il servizio prometheus.service
 ```
@@ -291,7 +291,7 @@ systemctl status prometheus.service
 Dovresti vedere le metriche esposte.
 
 ```
-http://localhost:9115/metrics
+http://ip-server:9115/metrics
 ```
 
 ### 5) Controlla i Targets di Prometheus
