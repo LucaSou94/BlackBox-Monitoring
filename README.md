@@ -147,7 +147,7 @@ podman run -d --name nginx-container -p 8080:80 nginx
 ### 1) Scarica e Installa Prometheus:
 ```   
 wget https://github.com/prometheus/prometheus/releases/download/v2.31.1/prometheus-2.31.1.linux-amd64.tar.gz
-tar xvfz prometheus-2.31.1.linux-amd64.tar.gz
+tar -xvfz prometheus-2.31.1.linux-amd64.tar.gz
 mv prometheus-2.31.1.linux-amd64/prometheus /usr/local/bin/
 mv prometheus-2.31.1.linux-amd64/promtool   /usr/local/bin/
 mkdir /etc/prometheus
