@@ -1,17 +1,14 @@
 # BlackBox-Monitoring
 
-Analizzare un json contenente delle URLs (con annessi i parametri di una chiamata HTTP) e che aggiunga sul BlackBox export le url da monitorar con Prometheus.
-
-
 Descrizione
-Il progetto ha l'obiettivo di analizzare un json contenente delle URLs (con annessi i parametri di una chiamata HTTP) e che aggiunga sul BlackBox export le url da monitorar con Prometheus. 
-
+Questo progetto automatizza l'aggiunta di URL da un file JSON alla configurazione di Blackbox Exporter e Prometheus, consentendo il monitoraggio dinamico di endpoint HTTP
 
 ## Prerequisiti
 
 - Una macchina con Rocky Linux (o distribuzione equivalente)
 - Permessi di root o sudo
 - Connessione a Internet per scaricare i pacchetti necessari
+- Python installato sul sistema
 
 
 ## 1. Installazione di BlackBox_exporter
