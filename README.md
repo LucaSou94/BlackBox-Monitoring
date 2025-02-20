@@ -56,8 +56,17 @@ sudo systemctl status blackbox_exporter
 ```
 ## 2. Creare il File JSON con le URLs
 
+### 1) Creare le cartelle per il file json e script python
 ```
-vim file/urls.json
+mkdir -p /opt/blackbox-monitoring/data
+mkdir -p /opt/blackbox-monitoring/script
+```
+### 2) Creiamo il file json
+
+```
+vim /opt/blackbox-monitoring/data/urls.json
+```
+```
 ```
 ```
 {
@@ -74,7 +83,7 @@ vim file/urls.json
 ### 3. Creare uno script python
 
 ```
-vim add_targets.py
+vim /opt/blackbox-monitoring/script/add_targets.py
 
 ```
 ```
@@ -207,7 +216,19 @@ systemctl enable prometheus
 
 ## 6. Verificare il Funzionamento
 
-### 1) Verifica che BlackBox Exporter sia in Esecuzione
+### 1) Lanciamo lo script python add_targets.py
+
+```
+python /opt/blackbox-monitoring/script/add_targets.py
+```
+
+### 2) Controlliamo il file /etc/prometheus/prometheus.yml per vedere se il target è statyo aggiunto
+
+```
+cat /etc/prometheus/prometheus.yml
+```
+
+### 3) Verifica che BlackBox Exporter sia in Esecuzione
 
 Dovresti vedere le metriche esposte.
 
@@ -217,7 +238,7 @@ http://localhost:9115/metrics
 
 ### 2) Controlla i Targets di Prometheus
 ```
-http://192.168.3.76:9090/targets
+http://localhost:9090/targets
 ```
 Dovresti vedere il job blackbox con lo stato "UP".
 
