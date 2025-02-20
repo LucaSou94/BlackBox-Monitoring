@@ -56,21 +56,7 @@ sudo systemctl enable blackbox_exporter
 sudo systemctl start blackbox_exporter
 sudo systemctl status blackbox_exporter
 ```
-## 2. Installazione di Ansible
-   
-### 1) Scarica e Installa Ansible
-```   
-dnf install -y epel-release
-dnf install -y ansible
-
-```
-### 2) Creare una Directory di Progetto
-``` 
-mkdir -p ~/ansible_project/{roles/add_urls/tasks,file}
-cd ~/ansible_project
-
-```
-### 3) Creare il File JSON con le URLs
+## 2. Creare il File JSON con le URLs
 
 ```
 vim file/urls.json
@@ -87,42 +73,62 @@ vim file/urls.json
  ]
 }
 ```
-### 4) Creare il Playbook Ansible
+### 3. Creare uno script python
 
 ```
-vim add_urls.yml
-
-```
-```
-- name: Add URLs to BlackBox Exporter
-  hosts: localhost
-  roles:
-    - add_urls
-```
-
-### 5) Creare il File di Ruolo Ansible per Parsare il JSON
-
-```
-vim roles/add_urls/tasks/main.yml
+vim add_targets.py
 
 ```
 ```
-- name: Read URLs from JSON
-  ansible.builtin.slurp:
-    src: file/urls.json
-  register: json_content
+import yaml
+import json
 
-- name: Parse JSON
-  set_fact:
-    urls: "{{ json_content.content | b64decode | from_json }}"
+# Percorsi dei file
+json_file_path = '/root/urls.json'
+prometheus_yml_path = '/etc/prometheus/prometheus.yml'
 
-- name: Add URLs to BlackBox Exporter
-  debug:
-    msg: "Adding URL: {{ item.url }} with method {{ item.method }}"
-  loop: "{{ urls['urls'] }}"
+# Leggi il file JSON
+with open(json_file_path, 'r') as json_file:
+    urls_data = json.load(json_file)
+
+# Leggi il file prometheus.yml
+with open(prometheus_yml_path, 'r') as yml_file:
+    prometheus_yml = yaml.safe_load(yml_file)
+
+# Estrarre i target esistenti
+scrape_configs = prometheus_yml.get('scrape_configs', [])
+blackbox_config = next((job for job in scrape_configs if job['job_name'] == 'blackbox'), None)
+
+if not blackbox_config:
+    blackbox_config = {
+        'job_name': 'blackbox',
+        'metrics_path': '/probe',
+        'params': {'module': ['http_2xx']},
+        'static_configs': [],
+        'relabel_configs': [
+            {'source_labels': ['__address__'], 'target_label': '__param_target'},
+            {'source_labels': ['__param_target'], 'target_label': 'instance'},
+            {'target_label': '__address__', 'replacement': '192.168.3.99:9115'}
+        ]
+    }
+    scrape_configs.append(blackbox_config)
+
+# Combina i target esistenti con quelli nuovi
+existing_targets = [target for config in blackbox_config['static_configs'] for target in config['targets']]
+new_targets = [url['url'] for url in urls_data['urls']]
+combined_targets = list(set(existing_targets + new_targets))  # Rimuovi i duplicati
+
+# Aggiorna la configurazione con i nuovi target
+blackbox_config['static_configs'] = [{'targets': combined_targets}]
+
+# Scrivi il file prometheus.yml aggiornato mantenendo la struttura
+with open(prometheus_yml_path, 'w') as yml_file:
+    yaml.safe_dump(prometheus_yml, yml_file, sort_keys=False)
+
+print(f'Le URL sono state aggiunte correttamente a {prometheus_yml_path}')
 ```
 
-## 3. Eseguire un Container Nginx con Podman
+## 4. Eseguire un Container Nginx con Podman
 
 ### 1) Avvio container nginx che ascolta sulla porta 8080
 ```
@@ -130,7 +136,7 @@ podman run -d --name nginx-container -p 8080:80 nginx
 
 ```
 
-## 4. Installazione e Configurazione di Prometheus
+## 5. Installazione e Configurazione di Prometheus
 
 ### 1) Scarica e Installa Prometheus:
 ```   
@@ -219,7 +225,7 @@ Dovresti vedere il job blackbox con lo stato "UP".
 
 ### 3) Esegui una query su prometheus
 ```
-http://192.168.3.76:9090/graph
+http://localhost:9090/graph
 ```
 ```
 probe_http_status_code
