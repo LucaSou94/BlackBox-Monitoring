@@ -66,7 +66,7 @@ mkdir -p /opt/blackbox-monitoring/script
 ```
 vim /opt/blackbox-monitoring/data/urls.json
 ```
-```
+
 ```
 {
 
