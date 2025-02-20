@@ -26,8 +26,12 @@ mv blackbox_exporter-0.19.0.linux-amd64/blackbox.yml /etc/blackbox_exporter/
 ```
 useradd --no-create-home --shell /bin/false blackbox
 ```
-
-### 3) Creazione del servizio blackbox_exporter
+### 3) Abiliatazione utente Blackbox
+```
+chown blackbox:blackbox /etc/blackbox_exporter/blackbox.yml
+chown blackbox:blackbox /usr/local/bin/blackbox_exporter
+```
+### 4) Creazione del servizio blackbox_exporter
 ```
 vim /etc/systemd/system/blackbox_exporter.service
 ```
@@ -46,7 +50,7 @@ WantedBy=multi-user.target
 
 ```
 
-### 4) Avviare e Abilitare Blackbox_exporter:
+### 5) Avviare e Abilitare Blackbox_exporter:
 ```
 sudo systemctl daemon-reload
 sudo systemctl enable blackbox_exporter
@@ -166,6 +170,10 @@ mkdir /var/lib/prometheus
 ```
 useradd --no-create-home --shell /bin/false prometheus
 ```
+### 3) Abilitazione utente Prometheus
+
+chown prometheus:prometheus /etc/prometheus/prometheus.yml
+chown prometheus:prometheus /var/lib/prometheus/
 
 ### 3) Controlliamo la configurazione di Prometheus prima di effettuare la modifica con il file json e script python:
 ```
