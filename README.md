@@ -68,7 +68,6 @@ vim /opt/blackbox-monitoring/data/urls.json
 ```
 ```
 ```
-```
 {
 
   "urls": [
