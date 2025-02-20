@@ -171,11 +171,13 @@ mkdir /var/lib/prometheus
 useradd --no-create-home --shell /bin/false prometheus
 ```
 ### 3) Abilitazione utente Prometheus
-
+```
+chown prometheus:prometheus /usr/local/bin/prometheus
+chown prometheus:prometheus /usr/local/bin/promtool
 chown prometheus:prometheus /etc/prometheus/prometheus.yml
 chown prometheus:prometheus /var/lib/prometheus/
-
-### 3) Controlliamo la configurazione di Prometheus prima di effettuare la modifica con il file json e script python:
+```
+### 4) Controlliamo la configurazione di Prometheus prima di effettuare la modifica con il file json e script python:
 ```
 cat /etc/prometheus/prometheus.yml
 ```
@@ -211,7 +213,7 @@ scrape_configs:
       - targets: ["localhost:9090"]
 
 ```
-### 4) Creazione del Servizio Systemd per Prometheus:
+### 5) Creazione del Servizio Systemd per Prometheus:
 ```
 vim /etc/systemd/system/prometheus.service
 ```
@@ -233,7 +235,7 @@ ExecStart=/usr/local/bin/prometheus \
 [Install]
 WantedBy=multi-user.target
 ```
-### 5) Avviare e Abilitare Prometheus
+### 6) Avviare e Abilitare Prometheus
  ```  
 systemctl daemon-reload
 systemctl start prometheus
