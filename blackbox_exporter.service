@@ -1,0 +1,12 @@
+[Unit]
+Description=BlackBox Exporter
+After=network.target
+
+[Service]
+User=blackbox
+ExecStart=/usr/local/bin/blackbox_exporter --config.file=/etc/blackbox_exporter/blackbox.yml
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
