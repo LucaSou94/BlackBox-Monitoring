@@ -69,15 +69,22 @@ vim /opt/blackbox-monitoring/data/urls.json
 
 ```
 {
-
   "urls": [
-     {
-       "url": "http://localhost:8080",
-       "method": "GET"
+    {
+      "url": "http://192.168.3.99:8080",
+      "method": "GET"
+    },
+    {
+      "url": "http://192.168.3.99:3306",
+      "method": "GET"
+    },
+    {
+      "url": "http://192.168.3.99:5432",
+      "method": "GET"
+    }
+  ]
+}	
 
-     }
- ]
-}
 ```
 ### 3. Creare uno script python
 
@@ -159,29 +166,40 @@ mkdir /var/lib/prometheus
 useradd --no-create-home --shell /bin/false prometheus
 ```
 
-### 3) Configurazione di Prometheus:
+### 3) Controlliamo la configurazione di Prometheus prima di effettuare la modifica con il file json e script python:
 ```
-vim /etc/prometheus/prometheus.yml
+cat /etc/prometheus/prometheus.yml
 ```
 ``` 
+# my global config
 global:
-  scrape_interval: 15s
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
 
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
 scrape_configs:
-  - job_name: 'blackbox'
-    metrics_path: /probe
-    params:
-      module: [http_2xx]
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
     static_configs:
-      - targets:
-        - http://localhost:8080
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: localhost:9115
+      - targets: ["localhost:9090"]
 
 ```
 ### 4) Creazione del Servizio Systemd per Prometheus:
@@ -221,13 +239,53 @@ systemctl enable prometheus
 python /opt/blackbox-monitoring/script/add_targets.py
 ```
 
-### 2) Controlliamo il file /etc/prometheus/prometheus.yml per vedere se il target è statyo aggiunto
+### 2) Controlliamo il file /etc/prometheus/prometheus.yml per vedere se il target è stato aggiunto
 
 ```
 cat /etc/prometheus/prometheus.yml
 ```
+```
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: null
+rule_files: null
+scrape_configs:
+- job_name: prometheus
+  static_configs:
+  - targets:
+    - localhost:9090
+- job_name: blackbox
+  metrics_path: /probe
+  params:
+    module:
+    - http_2xx
+  static_configs:
+  - targets:
+    - http://192.168.3.99:8080
+    - http://192.168.3.99:5432
+    - http://192.168.3.99:3306
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: __param_target
+  - source_labels:
+    - __param_target
+    target_label: instance
+  - target_label: __address__
+    replacement: 192.168.3.99:9115
+```
+### 3) Riavviamo il servizio prometheus.service
+```
+systemctl stop prometheus.service
+systemctl start prometheus.service
+systemctl status prometheus.service
+```
 
-### 3) Verifica che BlackBox Exporter sia in Esecuzione
+### 4) Verifica che BlackBox Exporter sia in Esecuzione
 
 Dovresti vedere le metriche esposte.
 
@@ -235,13 +293,13 @@ Dovresti vedere le metriche esposte.
 http://localhost:9115/metrics
 ```
 
-### 2) Controlla i Targets di Prometheus
+### 5) Controlla i Targets di Prometheus
 ```
 http://localhost:9090/targets
 ```
 Dovresti vedere il job blackbox con lo stato "UP".
 
-### 3) Esegui una query su prometheus
+### 6) Esegui una query su prometheus
 ```
 http://localhost:9090/graph
 ```
