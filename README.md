@@ -2,7 +2,7 @@
 
 Descrizione
 
-Questo progetto automatizza l'aggiunta di URL da un file JSON alla configurazione di Blackbox Exporter e Prometheus, consentendo il monitoraggio dinamico di endpoint HTTP
+Questo progetto automatizza l'aggiunta di URL da un file JSON alla configurazione di Blackbox Exporter e Prometheus, consentendo il monitoraggio dinamico di endpoint HTTP.
 
 ## Prerequisiti
 
