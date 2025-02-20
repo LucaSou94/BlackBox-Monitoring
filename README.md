@@ -91,7 +91,7 @@ import yaml
 import json
 
 # Percorsi dei file
-json_file_path = '/root/urls.json'
+json_file_path = '/opt/blackbox-monitoring/data/urls.json'
 prometheus_yml_path = '/etc/prometheus/prometheus.yml'
 
 # Leggi il file JSON
